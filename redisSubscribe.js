@@ -23,29 +23,53 @@ const view = new Table();
 const main = async () => {
     await subscriber.connect()
     await client.connect()
+    // __keyspace@0__
+    let index = 0
     await subscriber.pSubscribe('__keyspace@0__*', async (message, channel) => {
+        if (channel.includes('user-rate-limit')) { return }
         const key = channel.slice(15, channel.length)
         const action = message
-        let index = 0
+        index += 1;
         const previousValue = inMem[key]
-        console.log({ inMem })
-        await client.get(key).then((newValue) => {
-            index += 1;
-            let verb;
-            let diff = difflet.compare(previousValue, newValue)
-            inMem[key] = newValue;
+        let verb;
+        let color;
+        const type = await client.type(key)
+        console.log({ type, key })
+        const method = {
+            none: client.get,
+            string: client.get,
+            hash: client.hGet,
+            lists: client.lrange,
+            sets: client.sMembers
+        }
+        let callable = method[type].bind(client)
+        await callable(key)
+            .then((newValue) => {
+                let diff = difflet.compare(previousValue, newValue)
+                inMem[key] = newValue;
 
-            if (isJsonString(previousValue) && isJsonString(newValue)) {
-                diff = difflet.compare(JSON.parse(previousValue), JSON.parse(newValue))
-            }
+                if (isJsonString(previousValue) && isJsonString(newValue)) {
+                    diff = difflet.compare(JSON.parse(previousValue), JSON.parse(newValue))
+                }
 
-            if (previousValue) { verb = "UPDATE"; color = "blue" }
-            if (!previousValue && action === 'set') { verb = "CREATE"; color = "green" }
-            if (action === 'del') { verb = "DELETE"; color = "red" }
+                if (previousValue) { verb = "UPDATE"; color = "blue" }
+                if (!previousValue && ['hset', 'set'].includes(action)) { verb = "CREATE"; color = "green" }
+                if (action === 'del') { verb = "DELETE"; color = "red" }
+                if (action === 'expire') { verb = "EXPIRED"; color = "grey" }
+                if (action === 'incrby') { verb = "INCRBY"; color = 'yellow' }
+                color = color
+                view.addRow({ index, action, key }, { color });
+                view.printTable();
+            })
+        // .catch((err) => {
+        //     console.log({ err: err.message, key, action })
+        //     color = 'orange'
+        //     view.addRow({ index, action, key }, { color });
+        //     view.printTable();
+        // })
+        // .finally(() => {
 
-            view.addRow({ key, action, previousValue, newValue, diff }, { color });
-            view.printTable();
-        })
+        // })
     });
 }
 

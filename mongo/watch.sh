@@ -1,0 +1,1 @@
+cat watch2.js | mongosh "mongodb://localhost:27017/?readPreference=primary&appname=PiperMBPro&directConnection=true&ssl=false&serverSelectionTimeoutMS=10000"  
