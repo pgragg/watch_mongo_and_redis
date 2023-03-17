@@ -9,6 +9,5 @@ https://redis.io/docs/manual/keyspace-notifications/
 redis-cli config set notify-keyspace-events KEA 
 bash redis.sh
 
-npx nodemon --exec "node redisSubscribe.js"
-
-bash test-redis.sh
+1.) cp .env.example .env
+2.) `bash watch.sh`

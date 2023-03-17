@@ -60,6 +60,7 @@ function logOut(doc) {
   console.log('-------------------')
 }
 
+console.log('Watching collections one by one. I have not found a way to parallelize this startup process.')
 db.getMongo().getDBNames().forEach(function (dbname) {
   try {
     console.log(`watching ${dbname}`)
@@ -85,3 +86,5 @@ while (true) {
     }
   })
 }
+
+console.log('Now watching all collections. It may take a second or two for data changes to propagate.')

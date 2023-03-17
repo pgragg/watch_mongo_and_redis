@@ -3,7 +3,6 @@ require('events').defaultMaxListeners = 0;
 const redis = require('redis')
 const subscriber = redis.createClient()
 const client = redis.createClient()
-const colors = require('colors')
 const difflet = require('difflet')
 const { Table } = require('console-table-printer');
 
@@ -21,11 +20,17 @@ function isJsonString(str) {
 const view = new Table();
 
 const main = async () => {
+    console.log('Attempting connections to redis')
     await subscriber.connect()
+    console.log('Connected subscriber')
     await client.connect()
+    console.log('Connected client')
+
     // __keyspace@0__
     let index = 0
     await subscriber.pSubscribe('__keyspace@0__*', async (message, channel) => {
+        console.log('Subscribed to redis, listening for changes')
+        // Mute noisy channel
         if (channel.includes('user-rate-limit')) { return }
         const key = channel.slice(15, channel.length)
         const action = message
@@ -72,5 +77,6 @@ const main = async () => {
         // })
     });
 }
+
 
 main()
