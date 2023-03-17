@@ -1,13 +1,12 @@
-# DB Deltas
+# Watch Redis Changes
 
-https://www.mongodb.com/docs/manual/changeStreams/
+## How to
 
-
-https://redis.io/docs/manual/keyspace-notifications/
-
-# How to 
-redis-cli config set notify-keyspace-events KEA 
 bash redis.sh
 
 1.) cp .env.example .env
 2.) `bash watch.sh`
+
+### Handy Links
+
+<https://redis.io/docs/manual/keyspace-notifications/>
