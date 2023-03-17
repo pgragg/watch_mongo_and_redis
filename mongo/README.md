@@ -2,9 +2,9 @@
 
 ## How To
 
-1.) cp .env.example .env
+1.) `$ cp .env.example .env`
 
-2.) `bash watch.sh`
+2.) `$ bash watch.sh`
 
 ### Handy Links
 
